@@ -2,218 +2,104 @@
 {% block title %}All Books{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-6 text-center">📚 All Books</h2>
+<h2 class="text-2xl font-bold mb-6 text-center">All Books</h2>
 
-<!-- Toast messages -->
-{% if messages %}
-  {% for message in messages %}
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-6xl mx-auto">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %}
-
-<!-- Filters -->
-<div class="mb-4 max-w-6xl mx-auto flex justify-center flex-wrap gap-4">
-  <!-- Category Filter -->
-  <select id="category-filter" class="border rounded px-4 py-2">
-    <option value="">All Categories</option>
-    {% for category in categories %}
-      <option value="{{ category.name|lower }}">{{ category.name }}</option>
-    {% endfor %}
-  </select>
-
-  <!-- Price Filter -->
-  <select id="price-filter" class="border rounded px-4 py-2">
-    <option value="">All Prices</option>
-    <option value="0-50">Under $50</option>
-    <option value="50-100">$50 - $100</option>
-    <option value="100+">Above $100</option>
-  </select>
-
-  <!-- Publish Date Filter -->
-  <select id="date-filter" class="border rounded px-4 py-2">
-    <option value="">All Dates</option>
-    <option value="newest">Newest → Oldest</option>
-    <option value="oldest">Oldest → Newest</option>
-  </select>
-</div>
-
-<!-- Search -->
-<form method="GET" action="{% url 'book_list' %}" class="mb-6 max-w-6xl mx-auto flex justify-center">
-    <input type="text" id="search-input" name="q" placeholder="Search by book or author..."
-           value="{{ request.GET.q|default:'' }}"
-           class="border rounded-l px-4 py-2 w-1/3">
+<!-- Search + Category Filter -->
+<form method="GET" action="{% url 'book_list' %}" class="mb-6 max-w-6xl mx-auto flex justify-center space-x-2">
+    <input type="text" name="q" placeholder="Search by book or author..."
+           value="{{ query }}"
+           class="border rounded-l px-4 py-2 w-1/2">
+    <select name="category" class="border px-2 py-2 rounded-l">
+        <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Categories</option>
+        {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category|add:'' == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+    </select>
     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 transition">
         Search
     </button>
 </form>
 
 <!-- Books Grid -->
-<div id="books-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
   {% for book in book_list %}
-  <div class="book-item relative p-4 rounded-lg bg-white shadow hover:shadow-lg transition flex flex-col"
-       data-title="{{ book.title|lower }}"
-       data-authors="{{ book.authors.all|join:' '|lower }}"
-       data-price="{{ book.price }}"
-       data-publish="{{ book.publish_date }}"
-       data-categories="{{ book.categories.all|join:' '|lower }}">
-       
+  <div class="relative p-4 rounded-lg bg-white shadow hover:shadow-lg transition flex flex-col">
+
     <!-- Favorite Heart -->
     <button onclick="toggleFavorite({{ book.id }})"
             id="favorite-icon-{{ book.id }}"
-            class="absolute top-2 right-2 text-2xl hover:scale-110 transition">
-      {% if book.id in favorite_ids %}
-        ❤️
-      {% else %}
-        🤍
-      {% endif %}
+            class="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl transition">
+      {% if book.id in favorite_ids %}❤️{% else %}🤍{% endif %}
     </button>
 
-    <!-- Book Cover -->
     {% if book.image %}
       <img src="{{ book.image.url }}" alt="{{ book.title }}" class="w-full h-48 object-cover rounded mb-3">
     {% else %}
-      <div class="w-full h-48 bg-gray-200 rounded mb-3 flex items-center justify-center text-gray-400">
-        No Image
-      </div>
+      <div class="w-full h-48 bg-gray-200 rounded mb-3 flex items-center justify-center text-gray-400">No Image</div>
     {% endif %}
 
-    <!-- Title + Price -->
     <h3 class="font-semibold text-lg text-gray-800 mb-1">{{ book.title }}</h3>
-    <p class="text-gray-600 mb-3">${{ book.price }}</p>
-
-    <!-- Categories -->
-    <p class="text-sm text-gray-500 mb-3">
-      Categories: 
-      {% for category in book.categories.all %}
-        <span class="inline-block px-2 py-1 bg-gray-100 rounded mr-1">{{ category.name }}</span>
-      {% endfor %}
+    <p class="text-gray-600 mb-1">${{ book.price }}</p>
+    <p class="text-gray-500 mb-3 text-sm">
+        Categories:
+        {% for cat in book.categories.all %}
+            <span class="px-2 py-0.5 bg-gray-100 rounded">{{ cat.name }}</span>
+        {% empty %}
+            None
+        {% endfor %}
     </p>
 
-    <!-- Actions -->
     <div class="mt-auto flex justify-between items-center">
       <div class="flex space-x-2">
-        <a href="{% url 'edit_book' book.id %}" 
-           class="text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded border border-blue-600 hover:bg-blue-50 transition">Edit</a>
-        <a href="{% url 'book_detail' book.id %}" 
-           class="text-gray-600 hover:text-gray-800 font-medium px-2 py-1 rounded border border-gray-400 hover:bg-gray-100 transition">Details</a>
+        <a href="{% url 'edit_book' book.id %}" class="text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded border border-blue-600 hover:bg-blue-50 transition">Edit</a>
+        <a href="{% url 'book_detail' book.id %}" class="text-gray-600 hover:text-gray-800 font-medium px-2 py-1 rounded border border-gray-400 hover:bg-gray-100 transition">Details</a>
       </div>
-      <form method="POST" action="{% url 'delete_book' book.id %}" class="inline"
-            onsubmit="return confirmDelete('{{ book.title }}')">
+      <form method="POST" action="{% url 'delete_book' book.id %}" class="inline" onsubmit="return confirmDelete('{{ book.title }}')">
         {% csrf_token %}
-        <button type="submit" 
-                class="text-red-600 font-medium px-2 py-1 rounded border border-red-600 hover:bg-red-50 transition">
-          Delete
-        </button>
+        <button type="submit" class="text-red-600 font-medium px-2 py-1 rounded border border-red-600 hover:bg-red-50 transition">Delete</button>
       </form>
     </div>
   </div>
   {% empty %}
-  <p class="text-gray-500 text-center col-span-4">No books available.</p>
+  <p class="text-gray-500 text-center col-span-4">No books found.</p>
   {% endfor %}
 </div>
 
-<!-- Scripts -->
 <script>
 function confirmDelete(bookTitle) {
-  return confirm(`⚠️ Are you sure you want to delete "${bookTitle}"?`);
+    return confirm(`Are you sure you want to delete "${bookTitle}"?`);
 }
 
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
       }
-    }
   }
   return cookieValue;
 }
 
 function toggleFavorite(bookId) {
   fetch(`/book/toggle_favorite/${bookId}/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': getCookie('csrftoken'),
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      const btn = document.getElementById(`favorite-icon-${bookId}`);
-      btn.textContent = data.is_favorite ? "❤️" : "🤍";
-      if(data.is_favorite) {
-        window.dispatchEvent(new CustomEvent('favoriteAdded', { detail: {
-          id: bookId,
-          title: btn.closest('.book-item').dataset.title,
-          image: btn.closest('.book-item').querySelector('img')?.src || '',
-          price: btn.closest('.book-item').dataset.price
-        }}));
-      } else {
-        window.dispatchEvent(new CustomEvent('favoriteRemoved', { detail: { id: bookId }}));
+      method: 'POST',
+      headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
       }
-    }
+  })
+  .then(res => res.json())
+  .then(data => {
+      if (data.success) {
+          const btn = document.getElementById(`favorite-icon-${bookId}`);
+          btn.innerHTML = data.is_favorite ? '❤️' : '🤍';
+      }
   });
 }
-
-// Live search
-const searchInput = document.getElementById('search-input');
-const books = Array.from(document.querySelectorAll('.book-item'));
-searchInput.addEventListener('input', () => {
-  const q = searchInput.value.toLowerCase();
-  books.forEach(book => {
-    const title = book.dataset.title;
-    const authors = book.dataset.authors;
-    const categories = book.dataset.categories;
-    book.style.display = (title.includes(q) || authors.includes(q)) ? 'flex' : 'none';
-  });
-});
-
-// Filters
-const priceFilter = document.getElementById('price-filter');
-const dateFilter = document.getElementById('date-filter');
-const categoryFilter = document.getElementById('category-filter');
-
-function applyFilters() {
-  books.forEach(book => {
-    let show = true;
-
-    // Price filter
-    const price = parseFloat(book.dataset.price);
-    if(priceFilter.value === '0-50') show = price <= 50;
-    if(priceFilter.value === '50-100') show = price > 50 && price <= 100;
-    if(priceFilter.value === '100+') show = price > 100;
-
-    // Category filter
-    const selectedCategory = categoryFilter.value;
-    const categories = book.dataset.categories;
-    if(selectedCategory && !categories.includes(selectedCategory)) show = false;
-
-    book.style.display = show ? 'flex' : 'none';
-  });
-
-  // Date filter
-  if(dateFilter.value) {
-    const grid = document.getElementById('books-grid');
-    const sortedBooks = books.filter(b => b.style.display !== 'none');
-    sortedBooks.sort((a,b) => {
-      const dateA = new Date(a.dataset.publish);
-      const dateB = new Date(b.dataset.publish);
-      return dateFilter.value === 'newest' ? dateB - dateA : dateA - dateB;
-    });
-    sortedBooks.forEach(book => grid.appendChild(book));
-  }
-}
-
-priceFilter.addEventListener('change', applyFilters);
-dateFilter.addEventListener('change', applyFilters);
-categoryFilter.addEventListener('change', applyFilters);
-
 </script>
 {% endblock %}

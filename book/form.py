@@ -10,7 +10,14 @@ class CustomUserCreationForm(UserCreationForm):
             'class': 'w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500',
             'placeholder': 'Username'
         }),
-        help_text=None  # Remove help text
+        help_text=None 
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'border px-2 py-1 rounded w-full',
+            'placeholder': 'Email address'
+        })
     )
     password1 = forms.CharField(
         label='Password',
@@ -19,7 +26,7 @@ class CustomUserCreationForm(UserCreationForm):
             'placeholder': 'Password',
             'id': 'password1'
         }),
-        help_text=None  # Remove help text
+        help_text=None
     )
     password2 = forms.CharField(
         label='Confirm Password',
@@ -28,12 +35,12 @@ class CustomUserCreationForm(UserCreationForm):
             'placeholder': 'Confirm Password',
             'id': 'password2'
         }),
-        help_text=None  # Remove help text
+        help_text=None
     )
 
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ('username', 'email', 'password1', 'password2')
 
 
 class CategoryForm(forms.ModelForm):

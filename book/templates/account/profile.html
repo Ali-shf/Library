@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 <div class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-6">
-  <h2 class="text-2xl font-bold text-gray-800 mb-4">👤 Profile</h2>
+  <h2 class="text-2xl font-bold text-gray-800 mb-4"> Profile</h2>
   
   <div class="space-y-3">
     <p><strong>Username:</strong> {{ user.username }}</p>
@@ -17,9 +17,9 @@
   </div>
 
   <div class="mt-6 flex space-x-4">
-    <a href="{% url 'book_list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">📚 My Books</a>
-    <a href="{% url 'my_favorites' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">⭐ Favorites</a>
-    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">🚪 Logout</a>
+    <a href="{% url 'book_list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"> My Books</a>
+    <a href="{% url 'my_favorites' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"> Favorites</a>
+    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"> Logout</a>
   </div>
 </div>
 {% endblock %}
