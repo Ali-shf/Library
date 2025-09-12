@@ -1,0 +1,96 @@
+{% extends 'base_generic.html' %}
+{% load widget_tweaks %}
+{% block title %}Add Book{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">📚 Add a New Book</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Title -->
+    <div>
+      <label for="id_title" class="block text-sm font-medium text-gray-700 mb-1">Book Title</label>
+      {{ form.title|add_class:"w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" }}
+      {% if form.title.errors %}<p class="text-red-500 text-sm">{{ form.title.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label for="id_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+      {{ form.description|add_class:"w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" }}
+      {% if form.description.errors %}<p class="text-red-500 text-sm">{{ form.description.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Image -->
+    <div>
+      <label for="id_image" class="block text-sm font-medium text-gray-700 mb-1">Cover Image</label>
+      {{ form.image }}
+      {% if form.image.errors %}<p class="text-red-500 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Price -->
+    <div>
+        <label for="id_price" class="block text-sm font-medium text-gray-700 mb-1">Price (USD)</label>
+        <div class="relative mt-1 rounded-md shadow-sm">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <span class="text-gray-500 sm:text-sm">$</spa>
+            </div>
+            {{ form.price|add_class:"w-full pl-7 border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" }}
+        </div>
+        {% if form.price.errors %}
+            <p class="text-red-500 text-sm">{{ form.price.errors.0 }}</p>
+        {% endif %}
+        </div>
+
+
+    <!-- Publish Date -->
+    <div>
+      <label for="id_publish_date" class="block text-sm font-medium text-gray-700 mb-1">Publish Date</label>
+      {{ form.publish_date|add_class:"w-full border border-gray-300 rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" }}
+      {% if form.publish_date.errors %}<p class="text-red-500 text-sm">{{ form.publish_date.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Authors -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Authors</label>
+      <div class="grid grid-cols-2 gap-2">
+        {% for author in form.authors.field.queryset %}
+          <label class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border hover:border-purple-500">
+            <input type="checkbox" name="authors" value="{{ author.id }}"
+                   {% if author.id in form.authors.value %}checked{% endif %}
+                   class="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                <span class="text-gray-700">{{ author.first_name }} {{ author.last_name }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.authors.errors %}<p class="text-red-500 text-sm">{{ form.authors.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Categories -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+      <div class="grid grid-cols-2 gap-2">
+        {% for category in form.categories.field.queryset %}
+          <label class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border hover:border-purple-500">
+            <input type="checkbox" name="categories" value="{{ category.id }}"
+                   {% if category.id in form.categories.value %}checked{% endif %}
+                   class="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+            <span class="text-gray-700">{{ category.name }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.categories.errors %}<p class="text-red-500 text-sm">{{ form.categories.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="flex justify-center">
+      <button type="submit"
+        class="bg-purple-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+        ➕ Add Book
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
