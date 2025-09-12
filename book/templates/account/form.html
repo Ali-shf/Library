@@ -1,0 +1,100 @@
+<!-- templates/registrations/form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md mx-4">
+        <h2 class="text-3xl font-bold text-center mb-6">{{ title }}</h2>
+
+        {% if error %}
+        <p class="text-red-500 text-center mb-4">{{ error }}</p>
+        {% endif %}
+
+        <form  method="post" class="space-y-4">
+            {% csrf_token %}
+            {% if form %}
+                {% for field in form %}
+                    <div class="relative">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="text-gray-500 text-sm mt-1">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+
+                        {% if field.name == 'password1' or field.name == 'password2' %}
+                            <button type="button" onclick="togglePassword('{{ field.id_for_label }}', this)"
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <!-- eye SVG icon -->
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- fallback for login form -->
+                <div class="relative">
+                    <input type="text" name="username" placeholder="Username"
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required />
+                </div>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="Password"
+                           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required />
+                    <button type="button" onclick="togglePassword('password', this)"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            {% endif %}
+
+            <button type="submit"
+                    class="w-full bg-purple-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-600 transition">
+                {{ button_text }}
+            </button>
+        </form>
+
+        <p class="text-center mt-4 text-gray-600">
+            {% if title == "Register" %}
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-purple-600 hover:underline">Login</a>
+            {% else %}
+                Don't have an account?
+                <a href="{% url 'register' %}" class="text-purple-600 hover:underline">Register</a>
+            {% endif %}
+        </p>
+    </div>
+
+    <script>
+        function togglePassword(id, btn) {
+            const pwd = document.getElementById(id);
+            if (pwd.type === "password") {
+                pwd.type = "text";
+                btn.querySelector('svg').classList.add("text-purple-500");
+            } else {
+                pwd.type = "password";
+                btn.querySelector('svg').classList.remove("text-purple-500");
+            }
+        }
+    </script>
+</body>
+</html>
