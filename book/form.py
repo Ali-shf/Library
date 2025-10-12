@@ -1,6 +1,6 @@
 # book/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from book.models import Category, User, Book
 
 class CustomUserCreationForm(UserCreationForm):
@@ -83,4 +83,16 @@ class BookForm(forms.ModelForm):
             'categories': forms.SelectMultiple(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500'
             }),
+        }
+
+
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500',
+            })
         }
